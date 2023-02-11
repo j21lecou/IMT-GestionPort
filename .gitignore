@@ -45,3 +45,4 @@ vignettes/*.pdf
 
 # solution output files - keep local until published
 /Solutions/*.pdf
+liste-etudiants.txt

@@ -255,6 +255,7 @@ TP 7 (à rendre pour le `r as.Date("2023-02-21")+15`):
 Documents à lire avant le cours:
 
 - Chapitres 4-5 [@Henaff2012].
+- Faire les exercices \texttt{exo-RateYield} pour vérifier votre maîtrise des calculs actuariels de base. 
 
 ## Modules 9 (22/2):
 
@@ -265,14 +266,14 @@ Survol du problème de gestion obligataire et des approches classiques: couvertu
 Documents à lire avant le cours:
 
 - Chapitre 6 "Fixed Income Risk Management" [@Henaff2012].
+- Faire les exercices \texttt{exo-FIRiskManagement}.
 
 Documents:
 
 - Slides-Bonds.pdf
 
-TP 8 (à rendre pour le `r as.Date("2023-02-21")+15`):
-
-- Construction d'un portefeuille obligataire par programmation linéaire.
+TP-GestionOblig (à rendre pour le `r as.Date("2023-02-21")+15`):
+Construction d'un portefeuille obligataire par programmation linéaire.
 
 ## Modules 10 (22/2):
 
@@ -285,6 +286,7 @@ Documents à lire avant le cours:
 
 - Chapitre 9-10 [@Henaff2012]
 
+TP-VannaVolga (à rendre pour le `r as.Date("2023-02-22")+15`): méthode Vanna-Volga pour le pricing et l'interpolation d'une courbe de volatilité.
 
 ## Module 11 (7/3):
 
@@ -296,6 +298,7 @@ Documents à lire avant le cours:
 
 - Chapitre 13-14 [@Henaff2012]
 
+TP-Shimko (à rendre pour le `r as.Date("2023-03-07")+15`): un modèle simple du smile de volatilité.
 
 ## Module 12 (7/3):
 
@@ -308,6 +311,7 @@ Modèles empiriques
 Documents à lire avant le cours:
 
 - Chapitre 
+
 ## Modules 13 (8/3):
 
 Modélisation de la courbe de taux (modèle à un facteur)
