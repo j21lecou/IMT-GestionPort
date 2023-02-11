@@ -41,42 +41,8 @@ source(file.path(get.src.folder(), 'utils.R'))
 source(file.path(get.src.folder(), 'FileUtils.R'))
 ```
 
-In this problem set, you will use the following functions:
+In this problem set, use the functions GBSOption and GBSGreeks from the \texttt{fOptions} library. Verify that you understand all the arguments, in particular the notion of "cost of carry".
 
-GBSPrice: Price of a vanilla option:
-\[
-P = f(\text{PutCall}, S, K, T, r, b, \sigma)
-\]
-
-where:
-\begin{description}
-\item[$\text{PutCall}$] 'c' for a call, 'p' for a put
-\item[$b$] cost of carry: ridk free rate $r$ less dividend yield $d$
-\item[$r$] risk-free rate
-\end{description}
-
-```{r GBSPrice, eval=T, echo=T}
-GBSPrice <- function(PutCall, S, K, T, r, b, sigma) {
-  d1 <- (log(S/K) + (b+sigma^2/2)*T)/(sigma*sqrt(T))
-  d2 <- d1 - sigma*sqrt(T)
-
-  if(PutCall == 'c')  
-    px <- S*exp((b-r)*T)*pnorm(d1) - K*exp(-r*T)*pnorm(d2)
-  else
-    px <- K*exp(-r*T)*pnorm(-d2) - S*exp((b-r)*T)*pnorm(-d1)
-
-px
-}
-```
-
-GBSVega: Vega ($\frac{\partial P}{\partial \sigma}$) of a Vanilla option:
-
-```{r GBSVega, echo=T}
-GBSVega <- function(PutCall, S, K, T, r, b, sigma) {
-  d1 <- (log(S/K) + (b+sigma^2/2)*T)/(sigma*sqrt(T))
-  S*exp((b-r)*T) * dnorm(d1)
-}
-```
 
 # Data
 
