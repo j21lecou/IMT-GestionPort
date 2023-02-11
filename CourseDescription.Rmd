@@ -133,7 +133,6 @@ On considère ici le travail d'Harry Markowitz, qui établit les fondements de l
 Documents à lire avant le cours:
 
 - Article de Markowitz (1952)
-- Chapitre 5 de Pfaff (2016)
 - Note de cours "Markowitz & Treynor-Black"
 
 Documents:
@@ -151,7 +150,6 @@ Le modèle MEDAF (CAPM) et son pendant empirique, le modèle de marché à un fa
 
 Documents à lire avant le cours:
 
-- Chapitre 5 de Pfaff (2016)
 - Notes "MEDAF et mesures de performance"
 
 Documents:
@@ -159,9 +157,7 @@ Documents:
 - slides-3.pdf
 - Notes-MEDAF.pdf
 
-TP 3 (à rendre pour le `r as.Date("2023-02-14")+15`):
-
-- Construction d'un modèle à 1 facteur
+TP-UnFacteur (à rendre pour le `r as.Date("2023-02-14")+15`): Construction d'un modèle à 1 facteur.
 
 ## Module 4 (14/2): Modèle de Treynor-Black. Distinction "gestion active/gestion passive". [@Treynor1973]. Risque de modélisation. [@Boyle2012; @Ste1997]
 
@@ -174,20 +170,15 @@ Documents à lire avant le cours:
 - Article de Treynor & Black (1973)
 - Note de cours "Markowitz & Treynor-Black"
 - Articles cités
-- Chapitre 10 de Pfaff (2016)
 
 Documents:
 
 - slides-TB.pdf
 - slides-MVO.pdf
 
-TP 4-1 (à rendre pour le `r as.Date("2023-02-14")+15`):
+TP-Treynor (à rendre pour le `r as.Date("2023-02-14")+15`): Optimisation de portefeuille selon Treynor-Black.
 
-- Optimisation de portefeuille selon Treynor-Black
-
-TP 4-2 (à rendre pour le `r as.Date("2023-02-14")+15`):
-
-- Impact de la matrice de covariance sur les résultats de modèle moyenne-variance.
+TP-CoVar (à rendre pour le `r as.Date("2023-02-14")+15`): Impact de la matrice de covariance sur les résultats de modèle moyenne-variance.
 
 ## Module 5 (15/2): Modèle de Black-Litterman. [@He2005]
 
@@ -195,7 +186,6 @@ Le modèle de Black-Litterman et ses nombreuses extensions est très prisé des 
 
 Documents à lire avant le cours:
 
-- Chapitre 13.3 de Pfaff (2016)
 - Article de Litterman et He
 
 Documents:
@@ -203,9 +193,7 @@ Documents:
 - slides-BL.pdf
 - Notes-BL.pdf
 
-TP 5 (à rendre pour le `r as.Date("2023-02-15")+15`):
-
-- Comparaison du modèle M/V et du modèle de Black-Litterman.
+TP-BlackLitterman (à rendre pour le `r as.Date("2023-02-15")+15`): Comparaison du modèle M/V et du modèle de Black-Litterman.
 
 ## Module 6 (15/2): Approche factorielle [@Fama1992; @Fama1993; @Harvey2016a]
 
@@ -222,9 +210,7 @@ Documents:
 - slides-MF.pdf
 - Notes-APT.pdf
 
-TP 6 (à rendre pour le `r as.Date("2023-02-21") + 15`):
-
-- Comparaison de trois mises en oeuvre du modèle MV: Covariance empirique, covariance estimée à partir d'une ACP, covariance estimée à partir du modèle de Fama-French à trois facteurs.
+TP-MultiFacteurs (à rendre pour le `r as.Date("2023-02-21") + 15`): Comparaison de trois mises en oeuvre du modèle MV: Covariance empirique, covariance estimée à partir d'une ACP, covariance estimée à partir du modèle de Fama-French à trois facteurs.
 
 ## Module 7 (21/2): Méthodes récentes de gestion de portefeuille, "risk budgeting" [@Bruder2012]
 
@@ -241,9 +227,7 @@ Documents:
 
 - slides-RB.pdf
 
-TP 7 (à rendre pour le `r as.Date("2023-02-21")+15`):
-
-- calcul de portefeuilles selon des méthodes de "risk budgeting"
+TP-BudgetRisque (à rendre pour le `r as.Date("2023-02-21")+15`): calcul de portefeuilles selon des méthodes de "risk budgeting".
 
 ## Module 8 (21/2): Rappel sur les instruments de taux
 
