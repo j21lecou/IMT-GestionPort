@@ -200,6 +200,7 @@ TP-BlackLitterman (à rendre pour le `r as.Date("2023-02-15")+15`): Comparaison 
 - Définition et identification des facteurs
 - Estimation et limites statistiques
 - Modèles d'allocation factoriels
+- Retour sur le risque de modélisation
 
 Documents à lire avant le cours:
 

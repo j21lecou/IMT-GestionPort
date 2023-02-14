@@ -47,7 +47,7 @@ source(file.path(get.src.folder(), 'FileUtils.R'))
 
 # Données
 
-## Séries de rendement quotidien pour 11 valeurs:
+## Séries de rendement mensuel pour 11 valeurs:
 
 ```{r, eval=TRUE, echo=TRUE, warning=FALSE}
 monthly.ret.file <- file.path(get.data.folder(), "monthly.ret.rda")
