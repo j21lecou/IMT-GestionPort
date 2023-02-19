@@ -1,0 +1,140 @@
+---
+title: "Finance Quantitative"
+subtitle: "Exercice: Modèle de Treynor-Black"
+author: Patrick Hénaff
+date: "Version: `r format(Sys.Date(), '%d %b %Y')`"
+output:
+  pdf_document:
+    keep_tex: false
+    fig_caption: yes
+    latex_engine: pdflatex
+geometry: margin=1in
+
+fontfamily: mathpazo
+fontsize: 11pt
+header-includes:
+   - \linespread{1.05}
+   - \usepackage[utf8]{inputenc}
+   - \usepackage{amsthm}
+   - \usepackage{xfrac}
+   - \usepackage{booktabs}
+   - \usepackage{tikz}
+   - \usepackage{eurosym}
+   - \newcommand{\ones}{\mathbf{1}}
+   - \newcommand{\onesT}{\mathbf{1}^T}
+   - \newtheorem{thm}{Theorem}
+   - \DeclareMathOperator{\Var}{Var}
+   - \DeclareMathOperator{\E}{E}
+   - \DeclareMathOperator{\Cov}{Cov}
+   - \usepackage{tikz}
+---
+
+```{r setup, include=FALSE, cache=F, message=F, warning=F, results="hide"}
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.path='figs/')
+knitr::opts_chunk$set(cache.path='_cache/')
+knitr::opts_chunk$set(warning=F, message=F)
+
+library(lubridate)
+library(knitr)
+library(kableExtra)
+library(latex2exp)
+library(xts)
+library(PerformanceAnalytics)
+
+get.src.folder <- function() {
+   path.expand("../GP/src")
+ }
+ 
+ get.data.folder <- function() {
+   path.expand("../GP/data")
+ }
+
+ source(file.path(get.src.folder(), 'utils.R'))
+ source(file.path(get.src.folder(), 'FileUtils.R'))
+```
+
+Dans cet exercice, on considère la première étape du
+modèle de Treynor-Black, c'est à dire l'estimation du terme $\alpha$ du modèle à un facteur de Sharpe.
+
+
+# Données
+
+## Séries de rendement mensuel pour 11 valeurs:
+
+```{r, eval=TRUE, echo=TRUE, warning=FALSE}
+monthly.ret.file <- file.path(get.data.folder(), "monthly.ret.rda")
+load(monthly.ret.file)
+```
+
+On considère divers indices de marché:
+
+- le S&P 500
+- l'indice NASDAQ QQQQ
+- un ETF "World Market"
+
+
+```{r, echo=TRUE, warning=FALSE}
+VT.series.file <- file.path(get.data.folder(), "ret.VT.rda")
+load(VT.series.file)
+```
+
+## Rendement moyen:
+
+```{r, echo=TRUE}
+monthly.ret <- merge.xts(monthly.ret, world.index.ret, join="inner")
+kable(colMeans(monthly.ret), "latex", escape=FALSE, col.names=c("$r$"), booktabs=TRUE, caption="Rendement moyen mensuel")
+```
+
+# Questions
+
+## Modèle à un facteur de Sharpe
+
+Choisir un titre et un indice de marché. Estimer le modèle de Sharpe sur une période de 48 mois.
+
+
+```{r}
+dt.First <- as.Date("2009-01-01")
+dt.Last <- as.Date("2012-12-31")
+idx <- index(monthly.ret)
+good_idx <- (idx >= dt.First) & (idx <= dt.Last)
+good.data <- monthly.ret[good_idx,]
+mod = lm(AAPL ~ SPY, data=good.data)
+summary(mod)
+```
+Effectuer le même calcul sur l'ensemble des actions continues dans le jeu de données.
+
+```{r}
+titres <- c("AAPL", "AMZN", "MSFT", "F", "XOM", "MMM", "HD", "PG", "KO")
+
+n <- length(titres)
+df <- data.frame(alpha=rep(0,n), beta=rep(0,n), t.alpha=rep(0,n), t.beta=rep(0,n))
+row.names(df) <- titres
+i <- 1
+for(t in titres) {
+  mod <- lm(paste0(t, " ~ SPY"), data=good.data)
+  df$alpha[i] = mod$coefficients[1]
+  df$beta[i] = mod$coefficients[2]
+  t.vals <- coef(summary(mod))[, "t value"]
+  df$t.alpha[i] <- t.vals[1]
+  df$t.beta[i] <- t.vals[2]
+  i <- i+1
+}
+```
+
+```{r}
+kable(df, booktabs=TRUE, escape=FALSE,
+      col.names = c("$\\alpha$",
+      "$\\beta$",
+      "$t_{\\alpha}$",
+      "$t_{\\beta}$"))
+```
+Faire le même calcul sur une fenêtre glissante de 48 mois et aficher une série de $\alpha$. Utiliser la fonction \texttt{rollapply} de la librarie \texttt{zoo}.
+
+```{r}
+res_alpha <- rollapply(data=monthly.ret$AAPL, Rb=monthly.ret$SPY,
+                 FUN=CAPM.alpha,
+                 width=48, by=1)
+res_alpha <- removeNA(res_alpha)
+plot(res_alpha)
+```
