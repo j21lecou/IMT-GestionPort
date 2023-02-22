@@ -78,7 +78,7 @@ Tout au long du cours, des vidéo-conférences seront programmées pour répondr
 
 # Evaluation
 
-Formez des groupes de 3 étudiants. Chaque groupe choisit de rendre 5 TPs parmi tous les TP proposés, chaque TP comptant pour 1/5 de la note, qui sera commune à tous les membres du groupe. Vous ne pouvez que choisir 1 TP parmi les 4 premiers, et vous devez rendre au moins 1 TP par thème (gestion de portefeuille, produits dérivés, méthode de Monte-Carlo).
+Formez des groupes de 2 étudiants. Chaque groupe choisit de rendre 4 TPs parmi tous les TP proposés, chaque TP comptant pour 1/4 de la note, qui sera commune à tous les membres du groupe. Vous ne pouvez que choisir 1 TP parmi les 4 premiers, et vous devez rendre au moins 1 TP par thème (gestion de portefeuille, produits dérivés, méthode de Monte-Carlo). En plus des 4 TPs requis, vous pouvez rendre des TPs supplémentaires. Les notes des 4 meilleurs TPs seront retenues, et les TPs supplémentaires donneront lieu à un bonus.
 
 Les TP sont à réaliser en notebook "Rmarkdown" [@Xie2019] et à rendre au format \texttt{.pdf}. Vous rendrez également le code source \texttt{.Rmd}. "Rmarkdown" est une technologie très utile à maîtriser, car elle permet de produire des analyses *reproductibles*, avec une mise en page de grande qualité. La présentation et mise en page des documents devra donc être soignée, et sera prise en compte dans l'évaluation.
 
@@ -260,20 +260,9 @@ Documents:
 TP-GestionOblig (à rendre pour le `r as.Date("2023-02-21")+15`):
 Construction d'un portefeuille obligataire par programmation linéaire.
 
-## Modules 10 (22/2):
+## Module 10 (22/2):
 
 On suppose que le modèle binomial de Cox-Ross-Rubinstein et le modèle de Black-Scholes sont acquis. On s'intéresse ici à divers aménagements du modèle de base pour mieux prendre en compte les conditions de marché.
-
-- Couverture dynamique dans le cadre Black-Scholes et ses limites
-- Pricing Vanna-Volga [@Ag2008]
-
-Documents à lire avant le cours:
-
-- Chapitre 9-10 [@Henaff2012]
-
-TP-VannaVolga (à rendre pour le `r as.Date("2023-02-22")+15`): méthode Vanna-Volga pour le pricing et l'interpolation d'une courbe de volatilité.
-
-## Module 11 (7/3):
 
 - Existence et justification du "smile" de volatilité
 - Modèles de smile: Shimko [@Shimko1993a]
@@ -283,7 +272,18 @@ Documents à lire avant le cours:
 
 - Chapitre 13-14 [@Henaff2012]
 
-TP-Shimko (à rendre pour le `r as.Date("2023-03-07")+15`): un modèle simple du smile de volatilité.
+TP-Shimko (à rendre pour le `r as.Date("2023-02-22")+15`): un modèle simple du smile de volatilité.
+
+## Modules 11 (7/3):
+
+- Couverture dynamique dans le cadre Black-Scholes et ses limites
+- Pricing Vanna-Volga [@Ag2008]
+
+Documents à lire avant le cours:
+
+- Chapitre 9-10 [@Henaff2012]
+
+TP-VannaVolga (à rendre pour le `r as.Date("2023-03-07")+15`): méthode Vanna-Volga pour le pricing et l'interpolation d'une courbe de volatilité.
 
 ## Module 12 (7/3):
 
