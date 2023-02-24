@@ -1,0 +1,136 @@
+---
+title: "Finance Quantitative"
+subtitle: "Modèle Black-Scholes"
+author: Patrick Hénaff
+date: "Version: `r format(Sys.Date(), '%d %b %Y')`"
+output:
+  pdf_document:
+    keep_tex: false
+    fig_caption: yes
+    latex_engine: pdflatex
+geometry: margin=1in
+
+header-includes:
+  - \usepackage[utf8]{inputenc}
+  - \usepackage{eurosym}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r load-libraries, include=FALSE, echo=TRUE}
+library(quantmod)
+library(xts)
+library(hornpa)
+library(lubridate)
+library(xtable)
+library(PerformanceAnalytics)
+library(TTR)
+library(SuppDists)
+library(lubridate)
+library(roll)
+library(Hmisc)
+library(nFactors)
+library(kableExtra)
+library(quadprog)
+```
+
+# Black-Scholes Model (1)
+  
+Use the Black-Scholes model to price the option described in Table~\ref{tab:opt}.
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{cc}
+    \toprule
+    Type & Call \\
+    Strike & 50 \\
+    Spot & 55 \\
+    Maturity & 3 months \\
+    Interest rate & 3\% \\
+    Dividend yield & 0\% \\
+    Volatility & .30 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Characteristics of an European option}
+  \label{tab:opt}
+\end{table}
+
+```{r bs-price, echo=TRUE}
+K <- 50
+S <- 55
+r <- .03
+sigma <- .3
+T <- 1/4
+
+d1 <- (log(S/K) + (r+0.5*sigma^2)*T)/(sigma*sqrt(T))
+d2 <- d1 - sigma*sqrt(T)
+C <- S * pnorm(d1) - K * exp(-r*T) * pnorm(d2)
+```
+
+The call price is $C=`r round(C,2)`$.
+
+# Black-Scholes Model (2)
+
+On March 21, 2012, GOOG quotes \$636.91. Table~\ref{tab:goog} provides the prices of selected options expiring on 18 Jan 2013:
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{ccc}
+    \toprule
+    Type & Strike & Price \\
+    \midrule
+    Call  & 635 & 60.70 \\
+    Put   & 635 & 59.70 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Prices of options on GOOG}
+  \label{tab:goog}
+\end{table}
+
+Assume an interest rate of $1.0\%$. Google does not pay any dividend. 
+
+\begin{itemize}
+  \item Compute the implied volatility for the call and the put. Comment your results.
+    \item Use this result to price a call with strike 650.
+    \end{itemize}
+    
+The following function estimates the call and put prices as a function of 
+volatility.
+
+```{r bs-price-2, echo=TRUE}
+call.price <- function(sigma) {
+d1 <- (log(S/K) + (r+0.5*sigma^2)*T)/(sigma*sqrt(T))
+d2 <- d1 - sigma*sqrt(T)
+S * pnorm(d1) - K * exp(-r*T) * pnorm(d2)
+}
+
+put.price <- function(sigma) {
+d1 <- (log(S/K) + (r+0.5*sigma^2)*T)/(sigma*sqrt(T))
+d2 <- d1 - sigma*sqrt(T)
+-S * pnorm(-d1) + K * exp(-r*T) * pnorm(-d2)
+}
+```
+Solve for implied volatility:
+
+```{r, echo=TRUE}
+K <- 635
+S <- 636.91
+r <- .01
+sigma <- .3
+T <- as.numeric(dmy('18Jan2013') - dmy('21Mar2012'))/365
+
+iv.call <- uniroot(function(s) {call.price(s)-60.70}, c(.1, .4))$root
+iv.put <- uniroot(function(s) {put.price(s)-59.70}, c(.1, .4))$root
+``` 
+
+Use the call implied volatility to price the option:
+
+```{r, echo=TRUE}
+K <- 650
+C <- call.price(iv.call)
+```
+
+The call strike 650 is estimated at $C=`r round(C,2)`$.
+The market price is 54.00.
