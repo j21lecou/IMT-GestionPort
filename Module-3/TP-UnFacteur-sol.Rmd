@@ -1,0 +1,311 @@
+---
+title: "Finance Quantitative"
+subtitle: "Modèle à un facteur"
+author: Patrick Hénaff
+date: "Version: `r format(Sys.Date(), '%d %b %Y')`"
+output:
+  pdf_document:
+    keep_tex: false
+    fig_caption: yes
+    latex_engine: pdflatex
+geometry: margin=1in
+
+header-includes:
+  - \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r load-libraries, include=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+library(xts)
+library(hornpa)
+library(lubridate)
+library(xtable)
+library(quantmod)
+library(PerformanceAnalytics)
+library(TTR)
+library(lubridate)
+library(roll)
+library(Hmisc)
+library(nFactors)
+library(kableExtra)
+library(broom)
+library(tidyverse)
+library(ggplot2)
+library(cowplot)
+
+get.src.folder <- function() {
+  path.expand("../GP/src")
+}
+
+get.data.folder <- function() {
+  path.expand("../GP/data")
+}
+
+source(file.path(get.src.folder(), 'utils.R'))
+source(file.path(get.src.folder(), 'FileUtils.R'))
+```
+
+# Données
+
+## Séries de rendement quotidien pour 11 valeurs:
+
+```{r, eval=TRUE, echo=TRUE, warning=FALSE}
+monthly.ret.file <- file.path(get.data.folder(), "monthly.ret.rda")
+load(monthly.ret.file)
+```
+
+Pour l'indice de marché, on utilise VT, un ETF "World Market":
+
+```{r, echo=TRUE, warning=FALSE}
+VT.series.file <- file.path(get.data.folder(), "ret.VT.rda")
+
+if(!file.exists(VT.series.file)) {
+
+sym <- "VT"
+world.index <- Ad(getSymbols(sym, auto.assign=FALSE))
+world.index.ret <- monthlyReturn(world.index)
+colnames(world.index.ret) <- "Market"
+save(world.index.ret, file=VT.series.file)
+} else {
+  load(VT.series.file)
+}
+```
+
+## Rendement moyen:
+
+```{r, echo=TRUE}
+monthly.ret <- merge.xts(monthly.ret, world.index.ret, join="inner")
+kable(colMeans(monthly.ret), "latex", escape=FALSE, col.names=c("$r$"), caption="Average monthly return", booktabs=T)%>% kable_styling(latex_options=c("striped", "HOLD_position"))
+```
+
+## Matrice de covariance des rendements:
+
+```{r, echo=TRUE}
+kable(cov(monthly.ret), "latex", booktabs=T) %>%
+kable_styling(latex_options="scale_down")
+```
+
+## taux sans risque
+
+Le taux sans risque mensuel (annualisé) est obtenu de la Réserve Fédérale US.
+
+```{r, echo=TRUE}
+taux.sans.risque.csv <- file.path(get.data.folder(), "DP_LIVE_01032020211755676.csv")
+tmp <- read.csv(taux.sans.risque.csv, header=TRUE, sep=";")[, c("TIME", "Value")]
+dt <- ymd(paste(tmp$TIME, "-01", sep=""))-1
+rf_rate <- xts(tmp$Value/100.0, dt)
+```
+
+```{r, echo=FALSE}
+plot(rf_rate)
+```
+
+```{r, echo=FALSE}
+colnames(rf_rate) <- "Rf"
+monthly.ret.2 <- merge.xts(monthly.ret, rf_rate/12, join="inner")
+head(monthly.ret.2)
+```
+
+# Estimation d'un modèle à un facteur
+
+Choisir une période de 48 mois. A partir des exemples présentés en cours, estimer le modèle:
+
+
+$$
+R_i(t) - R_f(t) = \alpha + \beta (R_M(t) - R_f(t)) + \epsilon(t)
+$$
+
+en utilisant la fonction \texttt{lm}. Utilisez la fonction \texttt{kable} de \texttt{knitr} pour produire une présentation soignée des résultats.
+
+
+```{r, echo=TRUE}
+nb.obs <- 48
+Assets <- c("AAPL", "AMZN", "MSFT", "F",  "XOM", "MMM",  "HD",   "PG",   "KO")
+r.set <- monthly.ret.2[1:nb.obs,]
+r.set$SPY <- NULL
+r.set$QQQ <- NULL
+# Excess return
+excess.r <- r.set[, c(Assets, "Market")]
+for(i in seq_along(ncol(excess.r))) {
+  excess.r[,i] <- excess.r[,i] - r.set$Rf
+}
+
+sigma2.M <- as.numeric(var(excess.r$Market))
+r.M <- mean(excess.r$Market)
+
+
+res <- data.frame(alpha=double(), beta=double(), sigma.e=double(), asset=character())
+
+for(A in Assets) {
+  tmp <- lm(paste(A, " ~ Market"), data=excess.r)
+  alpha <- tmp$coefficients["(Intercept)"]
+  beta  <- tmp$coefficients["Market"]
+  sigma.e <- glance(tmp)$sigma
+  p.value <- tidy(tmp)$p.value[1]
+  res <- rbind(res, list(alpha=alpha, beta=beta, sigma.e=sigma.e, p.value=p.value, asset=A), stringsAsFactors=FALSE)
+}
+rownames(res) <- res$asset
+res$Mean <- apply(excess.r[, rownames(res)],2,mean)
+res$Sd <- apply(excess.r[, rownames(res)],2, sd)
+
+res$asset <- NULL
+```
+
+```{r, echo=TRUE}
+res_disp <- res[, c("alpha", "beta", "sigma.e", "p.value")]
+colnames(res_disp) <- c("$\\alpha$", "$\\beta$", "$\\sigma_e$", "$Pr(>|t|)_\\alpha$")
+kable(res_disp, "latex", booktabs=T, escape=FALSE) %>% kable_styling(latex_options="striped")
+```
+
+Sur cet intervalle, seul HD a un $\alpha$ significativement différent de 0.
+
+L'étape suivante est d'étudier la stabilité dans le temps des $\alpha$. Un indicateur de cherté relative fiable oscillerait autour de 0 de manière assez régulière: un écart par rapport au prix d'équilibre serait plus ou moins rapidement comblé. Par contre, un $\alpha$ qui resterait structurellement positif ou négatif ne peut plus être interprété comme un indicateur de cherté relative. Dans ce cas, $\alpha$ capture des facteurs de risque qui ne sont pas pris en compte par notre modèle de marché.
+
+Pour étudier l'évolution de $\alpha$ dans le temps, on évalue le modèle sur des intervalles glissants, en se décalant d'un mois à chaque estimation. On obtient une série chronologique de coefficient $\alpha$ pour chaque titre, que l'on représente graphiquement avec la p-value correspondante. Dans les calculs qui suivent, le terme constant $\alpha$ n'est presque jamais significatif.
+
+```{r, echo=TRUE}
+calc.alpha.beta <- function(r.data) {
+  res <- data.frame(matrix(ncol=5,nrow=0, dimnames=list(NULL, c('alpha', 'beta', 'sigma.e', 'asset', 'dt.calc'))))
+  
+  dt.calc <- as.Date(last(index(r.data)))
+for(A in Assets) {
+  tmp <- lm(paste(A, " ~ Market"), data=r.data)
+  alpha <- tmp$coefficients["(Intercept)"]
+  beta  <- tmp$coefficients["Market"]
+  sigma.e <- glance(tmp)$sigma
+  p.value <- tidy(tmp)$p.value[1]
+  r.bar <- mean(r.data[,A])
+  res <- rbind(res, list(alpha=alpha, beta=beta, sigma.e=sigma.e, p.value=p.value, r.bar=r.bar, asset=A, dt.calc=dt.calc), stringsAsFactors=FALSE)
+}
+
+res
+}
+
+r.set2 <- monthly.ret.2
+r.set2$SPY <- NULL
+r.set2$QQQ <- NULL
+# Excess return
+excess.r <- r.set2[, c(Assets, "Market")]
+for(i in seq_along(ncol(excess.r))) {
+  excess.r[,i] <- excess.r[,i] - r.set2$Rf
+}
+
+nb.obs <- 36
+df.res <- data.frame(matrix(ncol=5,nrow=0, dimnames=list(NULL, c('alpha', 'beta', 'sigma.e', 'asset', 'dt.calc'))))
+
+for(idx.last in seq(nb.obs, nrow(excess.r))) {
+  idx.first <- idx.last - nb.obs + 1
+  res <- calc.alpha.beta(excess.r[idx.first:idx.last,])
+  df.res <- rbind(df.res, res)
+  }
+```
+
+Série des coefficients $\alpha$ des régressions sur séries chronologiques et p values correspondantes.
+
+```{r, echo=FALSE}
+frame()
+for(A in Assets) {
+  df.A <- df.res[df.res$asset==A, ]
+  tmp = xts(df.A[,c("alpha", "p.value")], as.Date(df.A$dt.calc))
+
+par(mar=c(5,4,4,4)+0.3)
+plot(date(tmp), tmp$alpha, type='l', xlab='Date', ylab='alpha', main=paste("Modèle à un facteur ", A))
+par(new=T)
+plot(date(tmp), tmp$p.value, axes=F, type='l', bty='n', xlab="", ylab="",
+     col='red')
+mtext("P Test", side=4, col="red", line=2)
+axis(side=4, col="red", col.axis="red", at=pretty(range(tmp$p.value)))
+}
+```
+
+On observe que quelques titres (AMZN, PG) on un alpha relativement stationaire, globalement centré sur 0. Pour les autres titres, alpha semble présenter une tendance qui rend l'interprétation hasardeuse.
+
+### Calcul de la droite de marché 
+
+Calculons la droite de marché pour quelques dates, en utilisant les estimations de $\beta$ faites plus haut.
+
+```{r, echo=TRUE}
+
+ggplotRegression <- function (fit) {
+
+  ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
+  geom_point() +
+  stat_smooth(method = "lm", col = "red") +
+  labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                     "Intercept =",signif(fit$coef[[1]],5 ),
+                     " Slope =",signif(fit$coef[[2]], 5),
+                     " P =",signif(summary(fit)$coef[2,4], 5))) +
+    geom_text(label=Assets, check_overlap = T)
+}
+```
+
+```{r, echo=TRUE}
+# liste des dates de calcul
+dt.calc.u <- as.Date(unique(df.res$dt.calc))
+
+# selection de quelques dates
+  dt <- first(dt.calc.u)
+  df.one <- df.res[df.res$dt.calc == dt, ]
+  # regression Rdt sur beta
+  dmt <- lm(r.bar ~beta, data=df.one)
+  ggplotRegression(dmt)
+```
+
+```{r, echo=TRUE}
+  dt <- last(dt.calc.u)
+  df.one <- df.res[df.res$dt.calc == dt, ]
+  # regression Rdt sur beta
+  dmt <- lm(r.bar ~beta, data=df.one)
+  ggplotRegression(dmt)
+```
+
+Ces diagrammes permettent de visualiser les titres dans un espace $\beta$ / rendement. L'intérêt principal de cette représentation est de pouvoir observer la place relative des titres:
+
++ le $\beta$ d'AMZN a augmenté significativement entre 2012 et 2019, bien plus que les autres GAFAM
+
++ Conformement aux attentes, le $\beta$ de KO et PG restent faibles et stables.
+
+La qualité de l'ajustement statistique est par contre très variable.
+
+On calcule enfin la droite de marché des titres pour chaque date de calcul, et on
+forme des séries chronologiques de résidus (écart entre l'excès de rendement et le rendement prédit par l'exposition au marché)
+
+```{r, echo=TRUE}
+df.dmt <- NULL
+col.names <- c(Assets, 'dt.calc')
+
+for(dt in dt.calc.u) {
+  df.one <- df.res[df.res$dt.calc == dt, ]
+
+  # regression Rdt sur beta
+  dmt <- lm(r.bar ~beta, data=df.one)
+
+  tmp <- c(dmt$residuals*100, dt)
+  names(tmp) = col.names
+  df.tmp <- data.frame(t(tmp))  
+  if(is.null(df.dmt))
+    df.dmt <- df.tmp
+  else
+    df.dmt <- rbind(df.dmt, df.tmp)
+  }
+```
+
+```{r, echo=FALSE, fig.height=12, warning=FALSE}
+plot_lst <- vector("list", length=length(Assets))
+i = 1
+for(A in Assets) {
+  g <- ggplot(data=df.dmt, aes(x=as.Date(dt.calc), y=!! rlang::sym(A)))+geom_line() +
+    theme_classic() +
+    labs(x="") +
+    geom_hline(yintercept = 0, col="red")
+  plot_lst[[i]] <- g
+  i = i+1
+}
+title <- ggdraw() + draw_label("Ecart à la droite de marché")
+plot_grid(title, plotlist=plot_lst, ncol=2)
+```
+
+Ces séries chronologiques montrent que l'écart de rendement par rapport à la droite de marché n'est en général pas stationnaire, ce qui suggère que des facteurs de risque importants ne sont pas pris en compte. En conclusion, l'aspect le plus pertinent du modèle à un facteur semble être la droite de marché des titres, qui permet une comparaison instantanée des titres dans l'espace $\beta$ / rendement.
