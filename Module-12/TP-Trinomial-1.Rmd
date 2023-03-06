@@ -1,0 +1,68 @@
+---
+title: "Finance Quantitative"
+subtitle: "TP: Modèle Trinomial"
+author: <le groupe de travail>
+date: "Version: `r format(Sys.Date(), '%d %b %Y')`"
+output:
+  pdf_document:
+    keep_tex: false
+    fig_caption: yes
+    latex_engine: pdflatex
+geometry: margin=1in
+
+header-includes:
+  - \usepackage[utf8]{inputenc}
+  - \usepackage{eurosym}
+  - \usepackage{amsmath}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r load-libraries, include=FALSE, echo=TRUE}
+library(fOptions)
+library(kableExtra)
+```
+
+L'objectif de ce TP est de construire un modèle trinomial par agrégation de deux pas d'un modèle binomial de type Jarrow-Rudd.
+
+On rappelle les paramètres du modèle binomial de Jarrow-Rudd, qui est charactérisé par des probabilités de transition $p=q=1/2$:
+
+\begin{align}
+u &= e^{\mu \Delta t + \sigma \sqrt{\Delta t}}, \nonumber \\ 
+d &= e^{\mu \Delta t - \sigma \sqrt{\Delta t}} \nonumber
+\end{align}
+
+avec $\mu = (r-d) - \frac{1}{2} \sigma^2$.
+
+# Questions
+
+## 1. Calculer les paramètres d'un arbre trinomial constitué par l'agrégation de deux pas de temps d'un arbre binomial de Jarrow-Rudd.
+
+## 2. Construire un arbre de 200 pas, maturité 1 an pour le processus log-normal:
+
+$$
+dS_t = r dt + \sigma dW
+$$
+avec les paramètres suivants:
+
+```{r}
+options(scipen=1000)
+data = as.matrix(c(100, .20, .02), nrows=3)
+rownames(data) = c("$S_0$", "$\\sigma$", "$r$")
+kable(data, format="latex", booktabs=TRUE, escape=FALSE, digits=2) %>%
+  kable_styling(position="center", latex_options="HOLD_position")
+```
+
+Déterminez une manière parcimonieuse de représenter cet arbre, adaptée à la résolution de la question suivante.
+
+Vérifiez la correction de l'arbre en valorisant une option Européenne et en vérifiant la propriété risque-neutre de l'arbre.
+
+## 3. Valorisation d'une option "chooser". 
+
+Une option "chooser" de maturité $t_2$ et strike $K$ donne le droit au détenteur de choisir si l'option est un call ou un put, à un moment $t_1$ de la vie de l'option préalablement défini. A ce moment là, l'option "chooser" vaut $\max (C(K,t_2),P(K, t_2))$, où $C(K, t_2)$ ($P(K,t_2)$) est la valeur en $t_1$ d'un call (put) de strike $K$ de maturité $t_2$.   
+
+1. item Calculer la valeur d'une option "chooser" de strike $K=100$, avec $t_2 = 1 \ \textrm{an}, t_1 = t_2/2$.
+2. Montrer que l'option "chooser"peut être répliqué par un portefeuille statique, et calculez sa valeur analytiquement. Comparez vos deux estimations.
+
