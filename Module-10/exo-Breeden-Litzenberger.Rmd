@@ -45,7 +45,7 @@ On se propose de calculer la distribution empirique de $S_T$ à partir de la vol
 
 ```{r}
 sigma <- .2
-S <- 1
+S <- 100
 r <- .0
 b <- 0.0
 T <- 1
@@ -69,11 +69,59 @@ smileVol <- function(K) {
 }
 ```
 
+## Smile de volatilité
+
+```{r, echo=TRUE}
+KRange <- seq(80, 120, by=2)
+vol.smile <- sapply(KRange, smileVol)
+plot(KRange, vol.smile, type="l", col="red", lwd=2)
+```
+
 ## Densité de $S_T$
 
+```{r, echo=TRUE}
+# Call avec smile de volatilité
+call.sm <- function(K) {
+  tmp <- GBSOption(TypeFlag="c", S, X=K,Time=T,
+                   r=r, b=b, sigma=smileVol(K))
+  tmp@price
+}
+# test
+print(paste("Call 90: ", round(call.sm(90),3)))
+```
+
+```{r, echo+TRUE}
+d2C.dK2 <- function(K) {
+dK <- 1e-4
+(1/dK**2) *(call.sm(K-dK)-2*call.sm(K)+call.sm(K+dK)) * exp(r*T)
+}
+
+KRange <- seq(30, 250, 2)
+p.K <- 2*sapply(KRange, d2C.dK2)
+
+print(sum(p.K))
+```
 Calculer la densité $p(S_T)$ en utilisant la formule de Breeden-Litzenberger.
 
-## Valorisation de call digitaux strike=1.4
+## Valorisation de call digitaux strike=140
 
 Valoriser un call digital en dehors de l'argent, en utilisant la distribution lognormale (Black-Scholes) et la distribution implicite dérivée du smile.
 
+```{r, echo=TRUE}
+K.digital <- 140
+digital.payoff <- function(S) {
+  ifelse(S>K.digital,1,0)
+  }
+
+# Prix Digital - Distribution implicite
+tmp <- sapply(KRange, digital.payoff)
+P.digital <- exp(-r*T)*sum(tmp*p.K)
+print(paste("Prix digital: ", K.digital,  round(P.digital,3)))
+```
+# Prix digital - Black-Scholes N(d1)
+
+```{r, echo=TRUE}
+d1 <- (log(S/K.digital) + (r+sigma**2/2)*T)/(sigma*sqrt(T))
+P.digital.BS <- pnorm(d1)*exp(-r*T)
+print(paste("Prix digital BS: ", round(P.digital.BS,2)))
+```
