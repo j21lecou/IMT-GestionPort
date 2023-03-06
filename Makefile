@@ -1,4 +1,4 @@
-SUBDIRS := TP/ Solutions/
+SUBDIRS := Module-*/
 all: $(SUBDIRS)
 $(SUBDIRS):
 	$(MAKE) -C $@
