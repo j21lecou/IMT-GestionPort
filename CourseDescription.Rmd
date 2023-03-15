@@ -317,10 +317,11 @@ Modélisation de la courbe de taux (modèle à un facteur)
 
 ## Modules 15 (14/3):
 
-Modélisation de la courbe des taux (modèle à deux facteurs)
+Modélisation de la courbe des taux (modèle à un facteur)
 
-- le modèle de Hull et White [@Hull1996]
 - Valorisation de produits dérivés de taux.
+
+TP-BDT (à rendre pour le `r as.Date("2023-03-14")+15`): valorisation d'un option sur obligation avec le modèle de Black-Derman-Toy, optimisation des calculs.
 
 ## Modules 16 (14/3):
 
@@ -332,23 +333,23 @@ commodes pour construire des outils flexibles de valorisation des produits déri
 complexes.
 
 - Simulation d'un processus log-normal
-- Calibration de scenarios de taux
-- Calibration de scenarios d'indices
+- Méthodes de réduction de variance: scénarios antithétiques, variables de contrôle
+- Valorisation d'un fond à formule par simulation.
 
 ## Module 17 (15/3)
 
-Méthode de Monte-Carlo
+Méthode de Monte-Carlo: 
 
-- Valorisation d'une option Européenne
-- Méthodes de réduction de variance: scénarios antithétiques, variables de contrôle
+- Equation de Bellman et valorisation d'une option Américaine
 
+TP-AmericanShark (à rendre pour le `r as.Date("2023-03-15")+15`): valorisation d'un produit structuré.
 
 ## Module 18 (15/3)
 
-Méthode de Monte-Carlo
+Méthode de Monte-Carlo: application à la valorisation d'actifs industriels.
 
-- Equation de Bellman et valorisation d'une option Américaine
-- Application à la valorisation d'actifs industriels
+- Optimisation du fonctionnement d'une usine électrique
+- Valorisation d'un réservoir de gas naturel
 
 # Bibliographie
 
