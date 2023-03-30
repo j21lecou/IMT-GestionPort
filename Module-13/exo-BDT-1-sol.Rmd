@@ -141,3 +141,51 @@ $$
 quelque soit le nombre de noeuds à une étape de temps, il suffit de résoudre un système de deux équations à deux 
 inconnues: le taux court du noeud le plus bas $\hat{r}$ et le coefficient $\alpha$. Ces deux variables définissent l'ensemble des taux courts d'une étape de temps dans l'arbre.
 
+
+## Equations pour t = 3 ans
+
+```{r, echo=TRUE}
+obj <- function(x) {
+  r.dd <- x[1]
+  r.ud <- r.dd * x[2]
+  r.uu <- r.ud * x[2]
+  res <- numeric(2)
+  P.uu <- 100 * df(r.uu)
+  P.ud <- 100 * df(r.ud)
+  P.dd <- 100 * df(r.dd)
+  P.u <- (1/2) * (P.uu + P.ud) * df(r.u)
+  P.d <- (1/2) * (P.ud + P.dd) * df(r.d)
+  Y.u <- (100/P.u) ^ (1/2) - 1
+  Y.d <- (100/P.d) ^ (1/2) - 1
+  
+  P.0 <- (1/2) * (P.u + P.d) * df(z[1])
+  vol <- (1/2) * log(Y.u/Y.d)
+  res[1] <- P.0  - 100*df(z[3])**3
+  res[2] <- vol - beta[3]*sqrt(1)
+  res
+}
+
+sol <- nleqslv(as.vector(c(.1, 1)), obj)
+r.dd <- sol$x[1]
+alpha <- sol$x[2]
+r.ud <- r.dd * alpha
+r.uu <- r.ud * alpha
+print(c(r.dd, r.ud, r.uu))
+```
+## Prix d'une option sur obligation ZC
+
+```{r, echo=TRUE}
+P.uu <- 100 * df(r.uu)
+P.ud <- 100 * df(r.ud)
+P.dd <- 100 * df(r.dd)
+
+Strike <- 85
+Ex.uu <- max(P.uu-Strike, 0)
+Ex.ud <- max(P.ud-Strike, 0)
+Ex.dd <- max(P.dd-Strike, 0)
+
+C.u <- (1/2)*df(r.u)*(Ex.uu+Ex.ud)
+C.d <- (1/2)*df(r.d)*(Ex.ud +Ex.dd)
+C.0 <- (1/2)*df(z[1])*(C.u+C.d)
+print(C.0)
+```

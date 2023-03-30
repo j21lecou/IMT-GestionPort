@@ -300,6 +300,8 @@ Documents à lire avant le cours:
 
 - Derman, Kani (1996) Implied Trees.
 
+TP-Trinomial (à rendre pour le `r as.Date("2023-03-07")+15`): construction d'un arbre trinomial et valorisation d'une option exotique.
+
 ## Modules 13 (8/3):
 
 Modélisation de la courbe de taux (modèle à un facteur)

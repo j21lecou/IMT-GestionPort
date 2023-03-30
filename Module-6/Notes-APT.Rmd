@@ -62,7 +62,7 @@ get.src.folder <- function() {
 
 Soit une économie dotée de 2 actifs risqués et d'un taux sans risque. Pour 
 l'année à venir, l'incertitude sur les rendements est modélisée par un arbre
-à trois branches. On ignore les probabilités associées à chaque scénario. Les prix des actifs A, B sont respectivement
+à trois branches, numérotées de 1 (haut) à trois (bas). On ignore les probabilités associées à chaque scénario. Les prix des actifs A et B sont respectivement
 102 \euro et 104 \euro\ tandis que le prix de l'actif sans risque R est arbitrairement fixé à 100 \euro, pour un taux sans risque de $2\%$.
 
  
@@ -96,7 +96,7 @@ $$
 \end{minipage}
 $$
 
-Quelle devrait être la valeur du titre C, dont les valeurs attendues selon les trois scenarios sont:
+Quelle devrait être la valeur du titre C, dont les valeurs attendues selon les trois scénarios sont:
 
 $$
    \begin{tikzpicture}
@@ -107,7 +107,7 @@ $$
    \end{tikzpicture}
  $$
 
-On constitue un portefeuille formé des titres A, B et R qui a la même valeur à terme que C. Les poids des titres dans ce portefeuille sont obtenus en resolvant:
+On constitue un portefeuille formé des titres A, B et R qui a la même valeur à terme que C. Les poids des titres dans ce portefeuille sont obtenus en résolvant:
 
 
 ```{r, echo=TRUE}
@@ -135,7 +135,7 @@ P_C &= W^T `r write_matex2(P.0)` \\
 \end{aligned}
 $$
 
-Pour simplifier les calculs, il est utile de s'interesser à des actifs élémentaires qui ont un rendement nul dans tous les scénarios sauf un: soit $E_i$ un tel actif, ayant par convention une valeur de $1$ à terme dans  le scénario $i$. Calculons le vecteur $P$ des prix de ces trois actifs. En reprenant la même logique que précédement, 
+Pour simplifier les calculs, il est utile de s'intéresser à des actifs élémentaires qui ont un rendement nul dans tous les scénarios sauf un: soit $E_i, i=1, \ldots, 3$ un tel actif, ayant par convention une valeur de $1$ à terme dans  le scénario $i$. Calculons le vecteur $P$ des prix de ces trois actifs. En reprenant la même logique que précédement, 
 
 ```{r, echo=TRUE}
 b = diag(3)
@@ -149,7 +149,7 @@ $$
 P_E = `r write_matex2(round(P.E,2))`
 $$
 
-Les actifs $E_i$ sont appelés actifs d'Arrow-Debreu, et les prix $P_{E_i}$ sont les prix d'états associés. Notons que pour éviter une opportunité d'arbitrage, $P_{E_i} \geq 0$. En appliquant ces prix d'état à l'actif sans risque, on observe que 
+C'est à dire que l'actif $E_1$, prenant la valeur 1 dans le scénario 1 et 0 dans les deux autres a une valeur de `r round(P.E[1],2)`. Les actifs $E_i$ sont appelés actifs d'Arrow-Debreu, et les prix $P_{E_i}$ sont les prix d'états associés. Notons que pour éviter une opportunité d'arbitrage, $P_{E_i} \geq 0$. En appliquant ces prix d'état à l'actif sans risque, on observe que 
 
 $$
 (1+r) \sum_i P_{E_i} = 1
@@ -164,11 +164,11 @@ ou bien,
 $$
 Z_0 = \frac{1}{1+r} \sum_i \pi_i Z_i
 $$
-avec $\sum_i \pi_i = 1, \pi_i \geq 0$. On peut interpréter $\pi_i$ comme une probabilité associée à l'état $i$. Ainsi, la valeur de l'actif $Z$ est l'espérance de valeur future sous la probabilité $\pi$, actualisée à la date du jour. Un agent qui valoriserait ainsi les actifs, en considérant uniquement l'espérance de valeur future, serait neutre par rapport au risque, et les pseudo-probabilités $\pi$ sont de ce fait nommées "probabilités risque-neutre".
+avec $\sum_i \pi_i = 1, \pi_i \geq 0$. On peut interpréter $\pi_i$ comme une probabilité associée à l'état $i$. Ainsi, la valeur de l'actif $Z$ est l'espérance de valeur future sous la probabilité $\pi$, actualisée à la date du jour. Un agent qui valoriserait ainsi les actifs, en considérant uniquement l'espérance de valeur future, serait neutre par rapport au risque, et les pseudo-probabilités $\pi$ sont de ce fait nommées "probabilités risque-neutre". Dans ce monde "risque-neutre", tous les actifs ont le même taux de rendement, et c'est le taux sans risque.
 
 # Le Modèle APT
 
-On suppose que le rendement non-anticipé d'un actif est une fonction linéaire de facteurs de risque indépendents:
+On suppose que le rendement non-anticipé d'un actif est une fonction linéaire de facteurs de risque indépendants:
 
 \begin{align}
 \label{eq:apt-1}
@@ -184,7 +184,7 @@ Commençons par une version simplifiée de (\ref{eq:apt-1}), sans terme d'erreur
 r = \mu + Bf
 \end{align}
 
-ou $B$ est une matrice $N x K, \E(f_i) = 0, \Cov(f) = \Phi$. Constituons un portefeuille d'actifs risqués de poids $w \in R^N$ tel que w est orthogonal aux colonnes de $B$
+ou $B$ est une matrice $N x K, \E(f_i) = 0, \Cov(f) = \Phi$. Constituons un portefeuille d'actifs risqués de poids $w \in R^N$ tel que $w$ est orthogonal aux colonnes de $B$
 
 \begin{align}
 r_W = (1 - w^T \ones) r_0 + w^Tr
@@ -207,7 +207,7 @@ Puisque le portefeuille $w$ est sans risque, sont rendement $w^T\mu = r_0$, ou $
 (\mu - r_0 \ones) = B\lambda
 \end{align}
 
-Pour revenir à la notation initial, on a établi que l'espérance d'excès de rendement  d'un actif risqué est une fonction linéaire des primes de rique $\lambda_k$ associées aux facteurs de risque:
+Pour revenir à la notation initiale, on a établi que l'espérance d'excès de rendement  d'un actif risqué est une fonction linéaire des primes de risque $\lambda_k$ associées aux facteurs de risque:
 
 \begin{align}
 \mu_i - r_0 = \sum_k \beta_{ik} \lambda_k
@@ -250,14 +250,14 @@ une fonction linéaire des primes de risque associées aux facteurs:
 \mu - r_0 \ones = B \lambda
 \end{align}
 
-Pour résumer, le modèle APT postule que le rendement des actifs risqués est une fonction linéraire d'un nombre limité de facteurs de risque:
+Pour résumer, le modèle APT postule que le rendement des actifs risqués est une fonction linéaire d'un nombre limité de facteurs de risque:
 
 \begin{align}
 \label{eq:apt-x}
 R_{it} = E_i + \sum_{k=1}^K \beta_{ik} F_{kt} + \epsilon_{it} 
 \end{align}
 
-et on en déduit que l'espérance de l'excès de rendement de ces actifs risqués est uniquement une fonction des prime de risques des facteurs auquels le titre est exposé:
+et on en déduit que l'espérance de l'excès de rendement de ces actifs risqués est uniquement une fonction des prime de risques des facteurs auxquels le titre est exposé:
 
 \begin{align}
 E_i - r_0 = \sum_k \beta_{ik} (r_{F_k} - r_0)
