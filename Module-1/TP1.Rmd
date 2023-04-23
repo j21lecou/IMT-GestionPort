@@ -57,9 +57,8 @@ On charge les séries de rendements pour l'indice et les composants de l'indice.
                    dmy('01Jan2009'))
   
   # merge with cac40 index
-  cac.index <- get.ts('fchi', 'CAC40')
+  cac.ret <- get.ts('fchi', 'CAC40')
 
-  cac.ret <- returns(cac.index)
   names(cac.ret) <- 'CAC40'
   ts.all <- removeNA(cbind(ts.all, cac.ret))
 ```
