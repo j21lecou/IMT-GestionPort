@@ -64,6 +64,54 @@ kable_styling(latex_options=c("scale_down", "HOLD_position"))
 
 ```
 
+# Théorème de séparation des fonds.
+
+On vérifie qu'un portefeuille MV est la combinaison linéaire de deux autres portefeuilles MV. Ici, on choisit une décomposition en deux fonds:
+
++ le portefeuille de variance minimale
++ le portefeuille tangent avec $r_f=0$.
+
+## Portefeuille de variance minimale
+
+```{r, echo=TRUE}
+mu <- colMeans(daily.ret)
+Sigma <- cov(daily.ret)
+v.one <- matrix(1, nrow=nrow(Sigma))
+w <- solve(Sigma, v.one)
+w.g <- w / sum(w)
+r.g <- mu %*% w.g
+```
+
+## Portefeuille tangent avec $r_f=0$
+
+```{r, echo=TRUE}
+w <- solve(Sigma, mu)
+w.d <- w / sum(w)
+r.d <- mu %*% w.d
+```
+
+## Portefeuille MV avec espérance de rendement $r_p = (r_g + r_d)/2$
+
+```{r, echo=TRUE}
+r.p <- (r.g + r.d)/2
+a <- drop(t(v.one) %*% solve(Sigma, v.one))
+b <- drop(t(v.one) %*% solve(Sigma, mu))
+c <- mu %*% solve(Sigma, mu)
+delta <- a*c - b^2
+lambda.1 <- drop((c - b*r.p)/delta)
+lambda.2 <- drop((a*r.p - b)/delta)
+w.1 <- solve(Sigma, lambda.1 * v.one + lambda.2 * matrix(mu, ncol=1))
+```
+
+## Décomposition en deux portefeuilles MV
+
+```{r, echo=TRUE}
+A <- lambda.1 * a
+w.2 <- A * w.g + (1-A)*w.d
+```
+
+On vérifie bien que $w_1 = w_2$, avec $A=1/2$.
+
 # Droite de Marché des Capitaux (Capital Market Line)
 
 + A partir des calculs présentés en cours, concevoir une méthode numérique
